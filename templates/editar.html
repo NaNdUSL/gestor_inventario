@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h2>Editar produto</h2>
+
+    <form class="form-editar" action="" method="POST">
+        {{ form.hidden_tag() }}
+
+        <p>
+            {{ form.nome.label }} <br>
+            {{ form.nome(size=40) }} <br>
+            {% for error in form.nome.errors %}
+                <span style="color:red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.descricao.label }} <br>
+            {{ form.descricao(size=40) }} <br>
+            {% for error in form.descricao.errors %}
+                <span style="color:red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.preco.label }} <br>
+            {{ form.preco(size=40) }} <br>
+            {% for error in form.preco.errors %}
+                <span style="color:red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submeter() }}</p>
+
+    </form>
+{% endblock %}

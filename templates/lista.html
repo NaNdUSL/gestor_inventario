@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h2>Lista de produtos</h2>
+
+    <form method="GET" action="{{ url_for('listar') }}">
+        <input type="text" name="pesquisa" placeholder="Pesquisar pelo título" value="{{ request.args.get('pesquisa', '') }}">
+        <button type="submit">Pesquisar</button>
+    </form>
+
+    <table>
+        {% for produto in produtos %}
+        <tr>
+            <td>
+                <span class="produto-info">
+                    {{ produto.nome | highlight(pesquisa) | safe }} - - {{ produto.descricao }} - ({{ '%.2f'|format(produto.preco) }}€)
+                </span>
+                <span class="editar-apagar">
+                    <a href="{{ url_for('editar', id=produto.id) }}">
+                        <i style="color: rgb(2, 77, 2);" class="fa-regular fa-pen-to-square"></i>
+                    </a>
+                    <a href="{{ url_for('apagar', id=produto.id) }}">
+                        <i style="color: darkred;" class="fa-solid fa-trash"></i>
+                    </a>
+                </span>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td>Nenhum produto encontrado.</td></tr>
+        {% endfor %}
+    </table>
+{% endblock %}

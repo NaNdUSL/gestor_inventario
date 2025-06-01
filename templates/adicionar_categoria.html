@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+    <h2>{% if request.endpoint == 'adicionar' %} Adicionar {% else %} Editar {% endif %} Categoria</h2>
+    <form class="form-adicionar" action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>{{ form.nome.label }} {{ form.nome() }}</p>
+        <p>{{ form.submeter() }}</p>
+    </form>
+{% endblock %}

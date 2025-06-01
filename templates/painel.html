@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% set ver = ver %}
+
+{% block conteudo %}
+<h2>Painel</h2>
+
+<form method="POST" style="margin-bottom: 1rem;">
+	<button name="ver" value="produtos">Ver Produtos</button>
+	<button name="ver" value="categorias">Ver Categorias</button>
+</form>
+
+<form method="GET" action="{{ url_for('painel') }}" style="margin-bottom: 1rem;">
+	<input type="hidden" name="ver" value="{{ ver }}">
+	<input type="text" name="pesquisa" placeholder="Pesquisar pelo título" value="{{ request.args.get('pesquisa', '') }}">
+	<button type="submit">Pesquisar</button>
+</form>
+
+{% if ver == 'produtos' %}
+<h3>Lista de Produtos</h3>
+<ul>
+	{% for produto in produtos %}
+	<li>
+		{{ produto.nome | highlight(pesquisa) | safe }} -
+		{{ produto.descricao | highlight(pesquisa) | safe }} -
+		{{ '%.2f'|format(produto.preco) }}€ -
+		Categoria: {{ produto.categoria.nome if produto.categoria else 'Sem categoria' }}
+		<a href="{{ url_for('editar', id=produto.id) }}">
+			<i style="color: rgb(2, 77, 2);" class="fa-regular fa-pen-to-square"></i>
+		</a>
+		<a href="{{ url_for('apagar', id=produto.id) }}" onclick="return confirm('Apagar este produto?')">
+			<i style="color: darkred;" class="fa-solid fa-trash"></i>
+		</a>
+	</li>
+	{% else %}
+	<li>Nenhum produto encontrado.</li>
+	{% endfor %}
+</ul>
+
+{% elif ver == 'categorias' %}
+<h3>Lista de Categorias</h3>
+<ul>
+	{% for categoria in categorias %}
+	<li>
+		{{ categoria.nome | highlight(pesquisa) | safe }}
+		<a href="{{ url_for('editar_categoria', id=categoria.id) }}">
+			<i style="color: rgb(2, 77, 2);" class="fa-regular fa-pen-to-square"></i>
+		</a>
+		<a href="{{ url_for('apagar_categoria', id=categoria.id) }}" onclick="return confirm('Apagar esta categoria?')">
+			<i style="color: darkred;" class="fa-solid fa-trash"></i>
+		</a>
+	</li>
+	{% else %}
+	<li>Nenhuma categoria encontrada.</li>
+	{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

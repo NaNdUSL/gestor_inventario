@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %} Gestão de Produtos {% endblock %}</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Gestão de Produtos</h1>
+            <div class="nav">
+                {% if current_user.is_authenticated %}
+                Olá {{ current_user.nome }}
+                {% if ver %}
+                    <a href="{{ url_for('adicionar') if ver == 'produtos' else url_for('adicionar_categoria') }}">Adicionar</a>
+                {% endif %}
+                    <a href="{{ url_for('logout')}}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login')}}">Login</a>
+                    <a href="{{ url_for('registo')}}">Registo</a>
+                {% endif %}
+            </div>
+        </div>
+        <hr>
+        {% block conteudo %}{% endblock %}
+    </div>
+</body>
+</html>

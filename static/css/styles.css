@@ -1,0 +1,98 @@
+.container {
+    width: 70%;
+    margin: 50px auto;
+    /* text-align: center; */
+    /* border: 1px dashed black; */
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav {
+    display: flex;
+    gap: 20px;
+}
+
+.nav a {
+    text-decoration: none;
+    background-color: cornflowerblue;
+    padding: 4px 15px;
+    color: white;
+    border-radius: 2px;
+}
+
+mark {
+    padding: 0;
+    margin: 0;
+    background-color: rgb(129, 186, 212);
+    display: inline;
+}
+
+td {
+    background-color: rgb(246, 246, 246);
+    border-left: 5px solid cornflowerblue;
+    padding: 10px;
+    text-align: left;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+td a {
+    text-decoration: none;
+}
+
+i {
+    margin-left: 10px;
+}
+
+.jogo-info {
+    white-space: normal;
+}
+
+.editar-apagar {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+input[type="text"], 
+input[type="number"] {
+    width: 300px;
+}
+
+.form-adicionar,
+.form-editar {
+    width: 60%;
+}
+
+.form-adicionar label,
+.form-editar label {
+    display: block;
+    text-align: left;
+}
+
+.form-adicionar input,
+.form-editar input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid black;
+    outline: none;
+}
+
+.form-adicionar input[type="submit"], 
+.form-editar input[type="submit"] {
+    width: 100px;
+    margin-top: 25px;
+    background-color: orange;
+    color: white;
+    padding: 6px 15px;
+    border: none;
+    font-weight: bold;
+    border-radius: 2px;
+    font-size: 16px;
+}
