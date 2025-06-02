@@ -1,8 +1,9 @@
 from flask import Flask, flash, render_template, redirect, url_for, request
-from models import db, Produto, Funcionario, Categoria
+from models import db, Produto, Funcionario, Categoria, Log
 from forms import ProdutoForm, FuncionarioLoginForm, FuncionarioRegistoForm, CategoriaForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
+import pytz
 
 app = Flask(__name__)
 
@@ -49,37 +50,25 @@ def painel():
 	pesquisa = request.args.get('pesquisa', '', type=str)
 
 	if request.method == 'POST':
-		ver = request.form.get('ver', 'produtos')
+		opt = request.form.get('opt', 'produtos')
 	else:
-		ver = request.args.get('ver', 'produtos')
+		opt = request.args.get('opt', 'produtos')
 
-	if ver == 'produtos':
+	if opt == 'produtos':
 		if pesquisa:
-			produtos = Produto.query.filter(
-				or_(
-					Produto.nome.contains(pesquisa),
-					Produto.descricao.contains(pesquisa)
-				)
-			).all()
+			produtos = Produto.query.filter(or_(Produto.nome.contains(pesquisa), Produto.descricao.contains(pesquisa))).all()
 		else:
 			produtos = Produto.query.all()
+
 		categorias = []
 	else:
 		if pesquisa:
-			categorias = Categoria.query.filter(
-				Categoria.nome.contains(pesquisa)
-			).all()
+			categorias = Categoria.query.filter(Categoria.nome.contains(pesquisa)).all()
 		else:
 			categorias = Categoria.query.all()
 		produtos = []
 
-	return render_template(
-		'painel.html',
-		ver=ver,
-		produtos=produtos,
-		categorias=categorias,
-		pesquisa=pesquisa,
-	)
+	return render_template('painel.html', opt=opt, produtos=produtos, categorias=categorias, pesquisa=pesquisa)
 
 
 
@@ -92,6 +81,10 @@ def adicionar():
 	if form.validate_on_submit():
 		produto = Produto(nome=form.nome.data, preco=form.preco.data, descricao=form.descricao.data, categoria_id=form.categoria.data)
 		db.session.add(produto)
+		db.session.commit()
+
+		log = Log(funcionario_id=current_user.id, descricao=f"Adicionado o produto '{produto.nome}'" )
+		db.session.add(log)
 		db.session.commit()
 
 		return redirect(url_for('painel'))
@@ -112,7 +105,11 @@ def adicionar_categoria():
 		db.session.commit()
 		flash("Categoria adicionada com sucesso!", "sucesso")
 
-		return redirect(url_for('painel') + '?ver=categorias')
+		log = Log(funcionario_id=current_user.id, descricao=f"Adicionada a categoria '{nova_categoria.nome}'")
+		db.session.add(log)
+		db.session.commit()
+
+		return redirect(url_for('painel') + '?opt=categorias')
 
 	return render_template('adicionar_categoria.html', form=form)
 
@@ -128,7 +125,7 @@ def editar_categoria(id):
 		form.populate_obj(categoria)
 		db.session.commit()
 
-		return redirect(url_for('painel') + '?ver=categorias')
+		return redirect(url_for('painel') + '?opt=categorias')
 
 	return render_template('editar_categoria.html', form=form)
 
@@ -157,7 +154,7 @@ def apagar_categoria(id):
 	db.session.delete(categoria)
 	db.session.commit()
 
-	return redirect(url_for('painel') + '?ver=categorias')
+	return redirect(url_for('painel') + '?opt=categorias')
 
 
 @app.route('/produtos/apagar/<int:id>')
@@ -169,6 +166,13 @@ def apagar(id):
 	db.session.commit()
 
 	return redirect(url_for('painel'))
+
+
+@app.route('/logs')
+@login_required
+def listar_logs():
+	logs = Log.query.order_by(Log.data.desc()).all()
+	return render_template('logs.html', logs=logs)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -225,6 +229,22 @@ def logout():
 
 	logout_user()
 	return redirect(url_for('login'))
+
+
+from datetime import datetime
+import pytz
+
+@app.template_filter('to_portugal_time')
+def to_portugal_time(value):
+    if not value:
+        return ''
+    portugal_tz = pytz.timezone('Europe/Lisbon')
+    if value.tzinfo is None:
+        # Assume que o valor está em UTC (sem tzinfo)
+        value = pytz.utc.localize(value)
+    # Converte para horário de Portugal
+    portugal_time = value.astimezone(portugal_tz)
+    return portugal_time.strftime('%d-%m-%Y %H:%M:%S')
 
 
 @app.template_filter('highlight')

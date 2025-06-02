@@ -23,7 +23,6 @@ class FuncionarioRegistoForm(FlaskForm):
 class ProdutoForm(FlaskForm):
 
 	nome = StringField('Nome', validators=[DataRequired()])
-	# quantidade = IntegerField('Quantidade', validators=[DataRequired(), NumberRange(min=0)])
 	preco = FloatField('Preço', validators=[DataRequired()])
 	descricao = StringField('Descrição')
 	categoria = IntegerField('ID da Categoria', validators=[DataRequired()])

@@ -42,14 +42,11 @@ class Produto(db.Model):
 	descricao = db.Column(db.String(50))
 	categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
 
-	# logs = db.relationship('Log', backref='produto_rel', lazy=True)
-
 
 class Log(db.Model):
 	__tablename__ = 'logs'
 
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
 	funcionario_id = db.Column(db.Integer, db.ForeignKey('funcionarios.id'), nullable=False)
-	produto_id = db.Column(db.Integer, db.ForeignKey('produtos.id'), nullable=False)
 	descricao = db.Column(db.String(100), nullable=False)
 	data = db.Column(db.DateTime, server_default=db.func.current_timestamp(), nullable=False)

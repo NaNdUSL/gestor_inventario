@@ -1,8 +1,6 @@
 .container {
     width: 70%;
     margin: 50px auto;
-    /* text-align: center; */
-    /* border: 1px dashed black; */
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -32,7 +30,8 @@ mark {
     display: inline;
 }
 
-td {
+/* 🔹 Estilo específico para células de lista tipo cartão */
+.td-lista {
     background-color: rgb(246, 246, 246);
     border-left: 5px solid cornflowerblue;
     padding: 10px;
@@ -43,8 +42,13 @@ td {
     margin-bottom: 15px;
 }
 
-td a {
+.td-lista a {
     text-decoration: none;
+}
+
+.editar-apagar {
+    display: inline-block;
+    margin-right: 10px;
 }
 
 i {
@@ -55,12 +59,7 @@ i {
     white-space: normal;
 }
 
-.editar-apagar {
-    display: inline-block;
-    margin-right: 10px;
-}
-
-input[type="text"], 
+input[type="text"],
 input[type="number"] {
     width: 300px;
 }
@@ -84,7 +83,7 @@ input[type="number"] {
     outline: none;
 }
 
-.form-adicionar input[type="submit"], 
+.form-adicionar input[type="submit"],
 .form-editar input[type="submit"] {
     width: 100px;
     margin-top: 25px;
@@ -95,4 +94,24 @@ input[type="number"] {
     font-weight: bold;
     border-radius: 2px;
     font-size: 16px;
+}
+
+/* 🔹 Tabela estruturada para logs e dados tabulares */
+.table-estruturada {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.table-estruturada th,
+.table-estruturada td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.table-estruturada th {
+    background-color: cornflowerblue;
+    color: white;
 }
