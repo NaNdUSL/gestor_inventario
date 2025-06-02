@@ -14,7 +14,7 @@
         {% for log in logs %}
         <tr>
             <td>{{ log.id }}</td>
-            <td>{{ log.funcionario.nome if log.funcionario else 'Desconhecido' }}</td>
+            <td>{{ log.utilizador.nome if log.utilizador else 'Desconhecido' }}</td>
             <td>{{ log.descricao }}</td>
             <td>{{ log.data | to_portugal_time }}</td>
         </tr>

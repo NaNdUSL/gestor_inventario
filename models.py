@@ -4,8 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
-class Funcionario(db.Model, UserMixin):
-	__tablename__ = 'funcionarios'
+class Utilizador(db.Model, UserMixin):
+	__tablename__ = 'utilizadors'
 
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
 	nome = db.Column(db.String(50), nullable=False)
@@ -14,7 +14,7 @@ class Funcionario(db.Model, UserMixin):
 	nif = db.Column(db.String(50), unique=True, nullable=False)
 	telemovel = db.Column(db.String(16), unique=True, nullable=False)
 
-	logs = db.relationship('Log', backref='funcionario', lazy=True)
+	logs = db.relationship('Log', backref='utilizador', lazy=True)
 
 	def set_password(self, password):
 		self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
@@ -47,6 +47,6 @@ class Log(db.Model):
 	__tablename__ = 'logs'
 
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
-	funcionario_id = db.Column(db.Integer, db.ForeignKey('funcionarios.id'), nullable=False)
+	utilizador_id = db.Column(db.Integer, db.ForeignKey('utilizadors.id'), nullable=False)
 	descricao = db.Column(db.String(100), nullable=False)
 	data = db.Column(db.DateTime, server_default=db.func.current_timestamp(), nullable=False)

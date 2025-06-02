@@ -1,6 +1,6 @@
 from flask import Flask, flash, render_template, redirect, url_for, request
-from models import db, Produto, Funcionario, Categoria, Log
-from forms import ProdutoForm, FuncionarioLoginForm, FuncionarioRegistoForm, CategoriaForm
+from models import db, Produto, Utilizador, Categoria, Log
+from forms import ProdutoForm, LoginForm, RegistoForm, CategoriaForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
 import pytz
@@ -19,7 +19,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-	return Funcionario.query.get(int(user_id))
+	return Utilizador.query.get(int(user_id))
 
 
 @app.before_request
@@ -77,13 +77,14 @@ def painel():
 def adicionar():
 
 	form = ProdutoForm()
+	form.categoria.choices = [(c.id, c.nome) for c in Categoria.query.order_by(Categoria.nome).all()]
 
 	if form.validate_on_submit():
 		produto = Produto(nome=form.nome.data, preco=form.preco.data, descricao=form.descricao.data, categoria_id=form.categoria.data)
 		db.session.add(produto)
 		db.session.commit()
 
-		log = Log(funcionario_id=current_user.id, descricao=f"Adicionado o produto '{produto.nome}'" )
+		log = Log(utilizador_id=current_user.id, descricao=f"Adicionado o produto '{produto.nome}'" )
 		db.session.add(log)
 		db.session.commit()
 
@@ -105,7 +106,7 @@ def adicionar_categoria():
 		db.session.commit()
 		flash("Categoria adicionada com sucesso!", "sucesso")
 
-		log = Log(funcionario_id=current_user.id, descricao=f"Adicionada a categoria '{nova_categoria.nome}'")
+		log = Log(utilizador_id=current_user.id, descricao=f"Adicionada a categoria '{nova_categoria.nome}'")
 		db.session.add(log)
 		db.session.commit()
 
@@ -125,6 +126,10 @@ def editar_categoria(id):
 		form.populate_obj(categoria)
 		db.session.commit()
 
+		log = Log(utilizador_id=current_user.id, descricao=f"Editada a categoria '{categoria.nome}'")
+		db.session.add(log)
+		db.session.commit()
+
 		return redirect(url_for('painel') + '?opt=categorias')
 
 	return render_template('editar_categoria.html', form=form)
@@ -136,9 +141,18 @@ def editar(id):
 
 	produto = Produto.query.get_or_404(id)
 	form = ProdutoForm(obj=produto)
+	form.categoria.choices = [(c.id, c.nome) for c in Categoria.query.order_by(Categoria.nome).all()]
 
 	if form.validate_on_submit():
-		form.populate_obj(produto)
+
+		produto.nome = form.nome.data
+		produto.preco = form.preco.data
+		produto.descricao = form.descricao.data
+		produto.categoria_id = form.categoria.data
+		db.session.commit()
+
+		log = Log(utilizador_id=current_user.id, descricao=f"Editado o produto '{produto.nome}'")
+		db.session.add(log)
 		db.session.commit()
 
 		return redirect(url_for('painel'))
@@ -154,6 +168,10 @@ def apagar_categoria(id):
 	db.session.delete(categoria)
 	db.session.commit()
 
+	log = Log(utilizador_id=current_user.id, descricao=f"Apagada a categoria '{categoria.nome}'")
+	db.session.add(log)
+	db.session.commit()
+
 	return redirect(url_for('painel') + '?opt=categorias')
 
 
@@ -163,6 +181,10 @@ def apagar(id):
 
 	produto = Produto.query.get_or_404(id)
 	db.session.delete(produto)
+	db.session.commit()
+
+	log = Log(utilizador_id=current_user.id, descricao=f"Apagado o produto '{produto.nome}'")
+	db.session.add(log)
 	db.session.commit()
 
 	return redirect(url_for('painel'))
@@ -178,10 +200,10 @@ def listar_logs():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
-	form = FuncionarioLoginForm()
+	form = LoginForm()
 
 	if form.validate_on_submit():
-		user = Funcionario.query.filter_by(email=form.email.data).first()
+		user = Utilizador.query.filter_by(email=form.email.data).first()
 
 		if user and user.check_password(form.password.data):
 			login_user(user)
@@ -195,7 +217,7 @@ def login():
 @app.route('/registo', methods=['GET', 'POST'])
 def registo():
 
-	form = FuncionarioRegistoForm()
+	form = RegistoForm()
 
 	if form.validate_on_submit():
 		nome = form.nome.data.strip()
@@ -208,11 +230,11 @@ def registo():
 			flash("Preencha todos os campos corretamente.", "erro")
 			return render_template('registo.html', form=form)
 
-		if Funcionario.query.filter_by(email=email).first():
+		if Utilizador.query.filter_by(email=email).first():
 			flash("O utilizador já existe, escolha outro email.", "erro")
 			return render_template('registo.html', form=form)
 
-		novo_utilizador = Funcionario(nome=nome, email=email, nif=nif, telemovel=telemovel)
+		novo_utilizador = Utilizador(nome=nome, email=email, nif=nif, telemovel=telemovel)
 		novo_utilizador.set_password(password)
 		db.session.add(novo_utilizador)
 		db.session.commit()
@@ -236,15 +258,15 @@ import pytz
 
 @app.template_filter('to_portugal_time')
 def to_portugal_time(value):
-    if not value:
-        return ''
-    portugal_tz = pytz.timezone('Europe/Lisbon')
-    if value.tzinfo is None:
-        # Assume que o valor está em UTC (sem tzinfo)
-        value = pytz.utc.localize(value)
-    # Converte para horário de Portugal
-    portugal_time = value.astimezone(portugal_tz)
-    return portugal_time.strftime('%d-%m-%Y %H:%M:%S')
+	if not value:
+		return ''
+	portugal_tz = pytz.timezone('Europe/Lisbon')
+	if value.tzinfo is None:
+		# Assume que o valor está em UTC (sem tzinfo)
+		value = pytz.utc.localize(value)
+	# Converte para horário de Portugal
+	portugal_time = value.astimezone(portugal_tz)
+	return portugal_time.strftime('%d-%m-%Y %H:%M:%S')
 
 
 @app.template_filter('highlight')
