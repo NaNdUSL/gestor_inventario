@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<h2>Editar Funcionário</h2>
+
+<form method="POST">
+	{{ form.hidden_tag() }}
+	<p>{{ form.nome.label }}<br>{{ form.nome(size=40) }}</p>
+	<p>{{ form.email.label }}<br>{{ form.email(size=40) }}</p>
+	<p>{{ form.nif.label }}<br>{{ form.nif(size=40) }}</p>
+	<p>{{ form.telemovel.label }}<br>{{ form.telemovel(size=40) }}</p>
+	<p>{{ form.password.label }}<br>{{ form.password(size=40) }}</p>
+	<p>{{ form.submeter() }}</p>
+{% endblock %}

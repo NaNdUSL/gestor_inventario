@@ -1,6 +1,6 @@
 from flask import Flask, flash, render_template, redirect, url_for, request
 from models import db, Produto, Utilizador, Categoria, Log
-from forms import ProdutoForm, LoginForm, RegistoForm, CategoriaForm
+from forms import ProdutoForm, LoginForm, RegistoForm, CategoriaForm, FuncionarioEditarForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
 import pytz
@@ -199,7 +199,6 @@ def listar_logs():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-
 	form = LoginForm()
 
 	if form.validate_on_submit():
@@ -207,7 +206,11 @@ def login():
 
 		if user and user.check_password(form.password.data):
 			login_user(user)
-			return redirect(url_for('index'))
+
+			if user.cargo == 'admin':
+				return redirect(url_for('lista_funcionarios'))
+			else:
+				return redirect(url_for('painel'))
 
 		return "Login inválido. Tente novamente!"
 
@@ -234,15 +237,71 @@ def registo():
 			flash("O utilizador já existe, escolha outro email.", "erro")
 			return render_template('registo.html', form=form)
 
-		novo_utilizador = Utilizador(nome=nome, email=email, nif=nif, telemovel=telemovel)
+		novo_utilizador = Utilizador(nome=nome, email=email, nif=nif, telemovel=telemovel, cargo='funcionario')
 		novo_utilizador.set_password(password)
 		db.session.add(novo_utilizador)
 		db.session.commit()
 		flash("Registo efetuado com sucesso!", "sucesso")
 
-		return redirect(url_for('login'))
+		return redirect(url_for('lista_funcionarios'))
 
 	return render_template('registo.html', form=form)
+
+
+@app.route('/lista_funcionarios')
+@login_required
+def lista_funcionarios():
+    if current_user.cargo != 'admin':
+        return "Acesso negado", 403
+
+    funcionarios = Utilizador.query.filter_by(cargo='funcionario').all()
+    return render_template('lista_funcionarios.html', funcionarios=funcionarios)
+
+
+@app.route('/funcionarios/editar/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_funcionario(id):
+	if current_user.cargo != 'admin':
+		flash("Acesso não autorizado.", "erro")
+		return redirect(url_for('painel'))
+
+	funcionario = Utilizador.query.get_or_404(id)
+	form = FuncionarioEditarForm(obj=funcionario)
+
+	if form.validate_on_submit():
+		funcionario.nome = form.nome.data
+		funcionario.email = form.email.data
+		funcionario.nif = form.nif.data
+		funcionario.telemovel = form.telemovel.data
+
+		if form.password.data:
+			funcionario.set_password(form.password.data)
+
+		db.session.commit()
+		flash("Funcionário atualizado com sucesso!", "sucesso")
+		return redirect(url_for('lista_funcionarios'))
+
+	return render_template('editar_funcionario.html', form=form)
+
+
+
+@app.route('/funcionarios/apagar/<int:id>')
+@login_required
+def apagar_funcionario(id):
+	if current_user.cargo != 'admin':
+		flash("Acesso não autorizado.", "erro")
+		return redirect(url_for('painel'))
+
+	funcionario = Utilizador.query.get_or_404(id)
+
+	if funcionario.id == current_user.id:
+		flash("Não podes apagar a tua própria conta.", "erro")
+		return redirect(url_for('lista_funcionarios'))
+
+	db.session.delete(funcionario)
+	db.session.commit()
+	flash("Funcionário eliminado com sucesso!", "sucesso")
+	return redirect(url_for('lista_funcionarios'))
 
 
 @app.route('/logout')
@@ -262,9 +321,7 @@ def to_portugal_time(value):
 		return ''
 	portugal_tz = pytz.timezone('Europe/Lisbon')
 	if value.tzinfo is None:
-		# Assume que o valor está em UTC (sem tzinfo)
 		value = pytz.utc.localize(value)
-	# Converte para horário de Portugal
 	portugal_time = value.astimezone(portugal_tz)
 	return portugal_time.strftime('%d-%m-%Y %H:%M:%S')
 

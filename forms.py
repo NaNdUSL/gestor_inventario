@@ -41,3 +41,12 @@ class LogForm(FlaskForm):
 	produto_id = IntegerField('ID do Produto', validators=[DataRequired()])
 	descricao = StringField('Descrição', validators=[DataRequired()])
 	submeter = SubmitField('Registar Log')
+
+
+class FuncionarioEditarForm(FlaskForm):
+	nome = StringField('Nome', validators=[DataRequired()])
+	email = StringField('Email', validators=[DataRequired()])
+	nif = StringField('NIF', validators=[DataRequired()])
+	telemovel = StringField('Telemóvel', validators=[DataRequired()])
+	password = PasswordField('Nova Password (opcional)')
+	submeter = SubmitField('Gravar')

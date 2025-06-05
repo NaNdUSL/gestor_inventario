@@ -1,11 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import CheckConstraint
 
 db = SQLAlchemy()
 
 class Utilizador(db.Model, UserMixin):
-	__tablename__ = 'utilizadors'
+	__tablename__ = 'utilizadores'
 
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
 	nome = db.Column(db.String(50), nullable=False)
@@ -13,8 +14,12 @@ class Utilizador(db.Model, UserMixin):
 	password_hash = db.Column(db.String(200), nullable=False)
 	nif = db.Column(db.String(50), unique=True, nullable=False)
 	telemovel = db.Column(db.String(16), unique=True, nullable=False)
+	cargo = db.Column(db.String(20), nullable=False, default='funcionario')
 
 	logs = db.relationship('Log', backref='utilizador', lazy=True)
+
+	__table_args__ = (CheckConstraint("cargo IN ('admin', 'funcionario')", name='check_cargo_valido'),)
+
 
 	def set_password(self, password):
 		self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
@@ -40,6 +45,7 @@ class Produto(db.Model):
 	nome = db.Column(db.String(50), nullable=False)
 	preco = db.Column(db.Float, nullable=False)
 	descricao = db.Column(db.String(50))
+	quantidade = db.Column(db.Integer, nullable=False, default=0)
 	categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
 
 
@@ -47,6 +53,6 @@ class Log(db.Model):
 	__tablename__ = 'logs'
 
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
-	utilizador_id = db.Column(db.Integer, db.ForeignKey('utilizadors.id'), nullable=False)
+	utilizador_id = db.Column(db.Integer, db.ForeignKey('utilizadores.id'), nullable=False)
 	descricao = db.Column(db.String(100), nullable=False)
 	data = db.Column(db.DateTime, server_default=db.func.current_timestamp(), nullable=False)

@@ -113,3 +113,22 @@ input[type="number"] {
     background-color: cornflowerblue;
     color: white;
 }
+
+.botao-add {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    background-color: cornflowerblue;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.botao-add:hover {
+    background-color: royalblue;
+}

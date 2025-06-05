@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<h2>Lista de Funcionários</h2>
+
+<table class="table-estruturada">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Nome</th>
+			<th>Email</th>
+			<th>NIF</th>
+			<th>Telemóvel</th>
+			<th>Cargo</th>
+			<th>Ações</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for f in funcionarios %}
+		<tr>
+			<td>{{ f.id }}</td>
+			<td>{{ f.nome }}</td>
+			<td>{{ f.email }}</td>
+			<td>{{ f.nif }}</td>
+			<td>{{ f.telemovel }}</td>
+			<td>{{ f.cargo }}</td>
+			<td>
+				<a href="{{ url_for('editar_funcionario', id=f.id) }}">
+					<i class="fa-solid fa-pen-to-square" style="color: green;"></i>
+				</a>
+				<a href="{{ url_for('apagar_funcionario', id=f.id) }}" onclick="return confirm('Eliminar este funcionário?')">
+					<i class="fa-solid fa-trash" style="color: darkred;"></i>
+				</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}
