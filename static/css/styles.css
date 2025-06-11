@@ -21,35 +21,35 @@
 }
 
 .conteudo-principal {
-  padding-top: 100px;
+    padding-top: 100px;
 }
 
 @media (max-width: 768px) {
-  .conteudo-principal {
-    padding-top: 120px;
-  }
+    .conteudo-principal {
+        padding-top: 120px;
+    }
 }
 
 .mt-navbar {
-  padding-top: 100px;
+    padding-top: 100px;
 }
 
 @media (max-width: 768px) {
-  .mt-navbar {
-    padding-top: 120px;
-  }
+    .mt-navbar {
+        padding-top: 120px;
+    }
 }
 
 .alert {
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  padding: 1rem 1.25rem;
-  font-size: 1rem;
-  transition: box-shadow 0.3s ease;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    transition: box-shadow 0.3s ease;
 }
 
 .alert:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .confirm-box {
@@ -110,4 +110,16 @@
 }
 .buttons button[name="confirmar"][value="nao"]:hover {
     background-color: #5a6268;
+}
+
+body {
+	padding-top: 70px;
+}
+
+.navbar-text-center {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	color: white;
+	font-weight: 500;
 }

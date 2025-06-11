@@ -5,13 +5,22 @@
 <h2 class="mb-4">Painel</h2>
 
 <form method="POST" class="mb-3 d-flex gap-2">
-	<button type="submit" name="opt" value="produtos" class="btn btn-primary">Ver Produtos</button>
-	<button type="submit" name="opt" value="categorias" class="btn btn-secondary">Ver Categorias</button>
+	<button type="submit" name="opt" value="produtos"
+		class="btn {% if opt == 'produtos' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+		Ver Produtos
+	</button>
+	<button type="submit" name="opt" value="categorias"
+		class="btn {% if opt == 'categorias' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+		Ver Categorias
+	</button>
 </form>
 
 <form method="GET" action="{{ url_for('painel') }}" class="mb-4 d-flex gap-2">
 	<input type="hidden" name="opt" value="{{ opt }}">
-	<input type="text" name="pesquisa" placeholder="Pesquisar pelo título" value="{{ request.args.get('pesquisa', '') }}" class="form-control" style="max-width: 300px;">
+	<input type="text" name="pesquisa"
+	       placeholder="{% if opt == 'produtos' %}Pesquisar por nome/descrição{% else %}Pesquisar por nome{% endif %}"
+	       value="{{ request.args.get('pesquisa', '') }}"
+	       class="form-control" style="max-width: 300px;">
 	<button type="submit" class="btn btn-outline-primary">Pesquisar</button>
 </form>
 
@@ -25,7 +34,7 @@
 			<th>Preço (€)</th>
 			<th>Categoria</th>
 			<th>Quantidade</th>
-			<th style="width: 120px;"></th>
+			<th class="text-end" style="width: 280px;">Ações</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -35,7 +44,15 @@
 			<td>{{ produto.descricao | highlight(pesquisa) | safe }}</td>
 			<td>{{ '%.2f'|format(produto.preco) }}</td>
 			<td>{{ produto.categoria.nome if produto.categoria else 'Sem categoria' }}</td>
-			<td>{{ produto.quantidade }}</td>
+			<td>
+				{{ produto.quantidade }}
+				<form method="POST" action="{{ url_for('ajustar_quantidade', id=produto.id) }}" class="d-inline-flex align-items-center gap-1 ms-3" style="max-width: 190px;">
+					<input type="number" name="quantidade" class="form-control form-control-sm" placeholder="+/- Quantidade" required style="width: 130px;">
+					<button type="submit" class="btn btn-sm btn-outline-primary" title="Ajustar Quantidade">
+						<i class="fas fa-sync-alt"></i>
+					</button>
+				</form>
+			</td>
 			<td class="text-end">
 				<a href="{{ url_for('editar', id=produto.id) }}" class="btn btn-sm btn-outline-success" title="Editar">
 					<i class="fa-regular fa-pen-to-square"></i>
@@ -56,7 +73,7 @@
 	<thead class="table-dark">
 		<tr>
 			<th>Nome</th>
-			<th style="width: 120px;"></th>
+			<th class="text-end" style="width: 120px;">Ações</th>
 		</tr>
 	</thead>
 	<tbody>

@@ -4,70 +4,60 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>{% block titulo %}Gestão de Produtos{% endblock %}</title>
-
+	
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-	<style>
-		body {
-			padding-top: 70px;
-		}
-	</style>
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-		<div class="container">
-			<a class="navbar-brand" href="{{ url_for('painel') }}">Gestão de Produtos</a>
+		<div class="container position-relative d-flex justify-content-between align-items-center">
+			<a class="navbar-brand">Gestão de Produtos</a>
 			
+			{% if current_user.is_authenticated %}
+			<span class="text-white me-3">
+				Olá, <strong>{{ current_user.nome }}</strong> 
+				(<em>{{ "Funcionário" if current_user.cargo == "funcionario" else "Administrador" }}</em>)
+			</span>
+			{% endif %}
+
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarConteudo" aria-controls="navbarConteudo" aria-expanded="false" aria-label="Alternar navegação">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 
-			<div class="collapse navbar-collapse" id="navbarConteudo">
+			<div class="collapse navbar-collapse justify-content-end" id="navbarConteudo">
 				{% if current_user.is_authenticated %}
-					<ul class="navbar-nav ms-auto align-items-center">
-						<li class="nav-item me-3 text-white">
-							Olá, <strong>{{ current_user.nome }}</strong> (<em>{{ "Funcionário" if current_user.cargo == "funcionario" else "Administrador" }}</em>)
-						</li>
-						{% if current_user.cargo == 'funcionario' %}
-							<li class="nav-item">
-								<a href="{{ url_for('painel') }}" class="nav-link">Painel</a>
-							</li>
-						{% elif current_user.cargo == 'admin' %}
-							<li class="nav-item">
-								<a href="{{ url_for('registo') }}" class="nav-link">Registar Funcionário</a>
-							</li>
-							<li class="nav-item">
-								<a href="{{ url_for('lista_funcionarios') }}" class="nav-link">Painel</a>
-							</li>
-						{% endif %}
-						<li class="nav-item">
-							<a href="{{ url_for('listar_logs') }}" class="nav-link">Logs</a>
-						</li>
-						<li class="nav-item">
-							<a href="{{ url_for('logout') }}" class="nav-link text-danger">Logout <i class="fas fa-sign-out-alt"></i></a>
-						</li>
-					</ul>
+				<ul class="navbar-nav align-items-center">
+					{% if current_user.cargo == 'funcionario' %}
+					<li class="nav-item">
+						<a href="{{ url_for('painel') }}" class="nav-link">Painel</a>
+					</li>
+					{% elif current_user.cargo == 'admin' %}
+					<li class="nav-item">
+						<a href="{{ url_for('registo') }}" class="nav-link">Registar Funcionário</a>
+					</li>
+					<li class="nav-item">
+						<a href="{{ url_for('lista_funcionarios') }}" class="nav-link">Painel</a>
+					</li>
+					{% endif %}
+					<li class="nav-item">
+						<a href="{{ url_for('listar_logs') }}" class="nav-link">Logs</a>
+					</li>
+					<li class="nav-item">
+						<a href="{{ url_for('editar_funcionario', id=current_user.id) }}" class="nav-link" title="Editar Perfil">
+							<i class="fas fa-user-circle me-1"></i> Perfil
+						</a>
+					</li>
+					<li class="nav-item">
+						<a href="{{ url_for('logout') }}" class="nav-link text-danger">Logout <i class="fas fa-sign-out-alt"></i></a>
+					</li>
+				</ul>
 				{% endif %}
 			</div>
 		</div>
 	</nav>
 
-	<div class="container py-4">
-		{% with mensagens = get_flashed_messages(with_categories=true) %}
-			{% if mensagens %}
-				<div class="mb-4">
-					{% for categoria, mensagem in mensagens %}
-						<div class="alert alert-{{ categoria }} alert-dismissible fade show" role="alert">
-							{{ mensagem }}
-							<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-						</div>
-					{% endfor %}
-				</div>
-			{% endif %}
-		{% endwith %}
+	<div class="container py-4" style="margin-top: 80px;">
 		{% block conteudo %}{% endblock %}
 	</div>
 

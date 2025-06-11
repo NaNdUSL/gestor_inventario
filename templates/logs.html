@@ -5,7 +5,46 @@
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Registos de Atividade</h5>
     </div>
-    <div class="card-body p-0">
+
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            {% if current_user.cargo == 'admin' %}
+            <div class="col-md-3">
+                <label for="cargo" class="form-label">Cargo</label>
+                <select name="cargo" id="cargo" class="form-select">
+                    <option value="" {% if not cargo_filter %}selected{% endif %}>Todos</option>
+                    <option value="admin" {% if cargo_filter == 'admin' %}selected{% endif %}>Administrador</option>
+                    <option value="funcionario" {% if cargo_filter == 'funcionario' %}selected{% endif %}>Funcionário</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" name="nome" id="nome" class="form-control" value="{{ nome_filter }}">
+            </div>
+            {% endif %}
+
+            {% if current_user.cargo != 'admin' %}
+            <div class="col-md-4">
+                <label for="descricao" class="form-label">Descrição</label>
+                <input type="text" name="descricao" id="descricao" class="form-control" value="{{ descricao_filter }}">
+            </div>
+            {% endif %}
+
+            <div class="col-md-3">
+                <label for="data_inicio" class="form-label">Data Início</label>
+                <input type="datetime-local" name="data_inicio" id="data_inicio" class="form-control" value="{{ data_inicio }}">
+            </div>
+            <div class="col-md-3">
+                <label for="data_fim" class="form-label">Data Fim</label>
+                <input type="datetime-local" name="data_fim" id="data_fim" class="form-control" value="{{ data_fim }}">
+            </div>
+
+            <div class="col-md-3 align-self-end">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a href="{{ url_for('listar_logs') }}" class="btn btn-secondary ms-2">Limpar</a>
+            </div>
+        </form>
+
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead class="table-light">

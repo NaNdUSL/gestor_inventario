@@ -188,12 +188,96 @@ def apagar(id):
 
 	return redirect(url_for('painel'))
 
+@app.route('/ajustar_quantidade/<int:id>', methods=['POST'])
+def ajustar_quantidade(id):
+	produto = Produto.query.get_or_404(id)
+	try:
+		ajuste = int(request.form['quantidade'])
+	except ValueError:
+		flash('Quantidade inválida.', 'danger')
+		return redirect(url_for('painel', opt='produtos'))
+
+	nova_quantidade = produto.quantidade + ajuste
+	if nova_quantidade < 0:
+		flash('Não pode reduzir a quantidade para um valor negativo.', 'danger')
+		return redirect(url_for('painel', opt='produtos'))
+
+	produto.quantidade = nova_quantidade
+	db.session.commit()
+	flash('Quantidade ajustada com sucesso.', 'success')
+	return redirect(url_for('painel', opt='produtos'))
+
 
 @app.route('/logs')
 @login_required
 def listar_logs():
-	logs = Log.query.order_by(Log.data.desc()).all()
-	return render_template('logs.html', logs=logs)
+	cargo_filter = request.args.get('cargo', '').strip()
+	nome_filter = request.args.get('nome', '').strip()
+	descricao_filter = request.args.get('descricao', '').strip()
+
+	# Espera strings tipo "YYYY-MM-DD HH:MM" ou só "YYYY-MM-DD"
+	data_inicio_str = request.args.get('data_inicio', '').strip()
+	data_fim_str = request.args.get('data_fim', '').strip()
+
+	data_inicio = None
+	data_fim = None
+	fmt = "%Y-%m-%d %H:%M"
+	fmt_date_only = "%Y-%m-%d"
+
+	try:
+		if data_inicio_str:
+			# Tenta com datetime completo, se falhar tenta só data
+			try:
+				data_inicio = datetime.strptime(data_inicio_str, fmt)
+			except ValueError:
+				data_inicio = datetime.strptime(data_inicio_str, fmt_date_only)
+		if data_fim_str:
+			try:
+				data_fim = datetime.strptime(data_fim_str, fmt)
+			except ValueError:
+				data_fim = datetime.strptime(data_fim_str, fmt_date_only)
+				# Ajustar fim do dia para 23:59:59
+				data_fim = data_fim.replace(hour=23, minute=59, second=59)
+	except Exception:
+		# Ignorar parse error (ou podes fazer flash erro)
+		pass
+
+	if current_user.cargo == 'admin':
+		query = Log.query.join(Log.utilizador)
+
+		if cargo_filter:
+			query = query.filter(Utilizador.cargo == cargo_filter)
+
+		if nome_filter:
+			query = query.filter(Utilizador.nome.ilike(f'%{nome_filter}%'))
+
+		if data_inicio:
+			query = query.filter(Log.data >= data_inicio)
+		if data_fim:
+			query = query.filter(Log.data <= data_fim)
+
+		logs = query.order_by(Log.data.desc()).all()
+
+	else:
+		# Funcionário vê só os seus logs e pode filtrar por descrição + datas
+		query = Log.query.filter_by(utilizador_id=current_user.id)
+
+		if descricao_filter:
+			query = query.filter(Log.descricao.ilike(f'%{descricao_filter}%'))
+
+		if data_inicio:
+			query = query.filter(Log.data >= data_inicio)
+		if data_fim:
+			query = query.filter(Log.data <= data_fim)
+
+		logs = query.order_by(Log.data.desc()).all()
+
+	return render_template('logs.html', logs=logs,
+						cargo_filter=cargo_filter,
+						nome_filter=nome_filter,
+						descricao_filter=descricao_filter,
+						data_inicio=data_inicio_str,
+						data_fim=data_fim_str)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -211,7 +295,7 @@ def login():
 			else:
 				return redirect(url_for('painel'))
 
-		return "Login inválido. Tente novamente!"
+		flash("Credenciais erradas. Tente novamente.", "danger")
 
 	return render_template('login.html', form=form)
 
@@ -282,7 +366,7 @@ def lista_funcionarios():
 @app.route('/funcionarios/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editar_funcionario(id):
-	if current_user.cargo != 'admin':
+	if current_user.cargo != 'admin' and current_user.id != id:
 		flash("Acesso não autorizado.", "erro")
 		return redirect(url_for('painel'))
 
@@ -300,9 +384,14 @@ def editar_funcionario(id):
 
 		db.session.commit()
 		flash("Funcionário atualizado com sucesso!", "sucesso")
-		return redirect(url_for('lista_funcionarios'))
+
+		if current_user.cargo == 'admin':
+			return redirect(url_for('lista_funcionarios'))
+		else:
+			return redirect(url_for('painel'))
 
 	return render_template('editar_funcionario.html', form=form)
+
 
 
 @app.route('/funcionarios/apagar/<int:id>')
