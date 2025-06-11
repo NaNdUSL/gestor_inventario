@@ -46,7 +46,7 @@ class Produto(db.Model):
 	preco = db.Column(db.Float, nullable=False)
 	descricao = db.Column(db.String(50))
 	quantidade = db.Column(db.Integer, nullable=False, default=0)
-	categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
+	categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=True)
 
 
 class Log(db.Model):

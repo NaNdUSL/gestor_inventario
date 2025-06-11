@@ -2,60 +2,79 @@
 {% set opt = opt %}
 
 {% block conteudo %}
-<h2>Painel</h2>
+<h2 class="mb-4">Painel</h2>
 
-<form method="POST" style="margin-bottom: 1rem;">
-	<button name="opt" value="produtos">Ver Produtos</button>
-	<button name="opt" value="categorias">Ver Categorias</button>
+<form method="POST" class="mb-3 d-flex gap-2">
+	<button type="submit" name="opt" value="produtos" class="btn btn-primary">Ver Produtos</button>
+	<button type="submit" name="opt" value="categorias" class="btn btn-secondary">Ver Categorias</button>
 </form>
 
-<form method="GET" action="{{ url_for('painel') }}" style="margin-bottom: 1rem;">
+<form method="GET" action="{{ url_for('painel') }}" class="mb-4 d-flex gap-2">
 	<input type="hidden" name="opt" value="{{ opt }}">
-	<input type="text" name="pesquisa" placeholder="Pesquisar pelo título" value="{{ request.args.get('pesquisa', '') }}">
-	<button type="submit">Pesquisar</button>
+	<input type="text" name="pesquisa" placeholder="Pesquisar pelo título" value="{{ request.args.get('pesquisa', '') }}" class="form-control" style="max-width: 300px;">
+	<button type="submit" class="btn btn-outline-primary">Pesquisar</button>
 </form>
 
 {% if opt == 'produtos' %}
-<h3>Lista de Produtos</h3>
-<ul>
-	{% for produto in produtos %}
-	<li>
-		{{ produto.nome | highlight(pesquisa) | safe }} -
-		{{ produto.descricao | highlight(pesquisa) | safe }} -
-		{{ '%.2f'|format(produto.preco) }}€ -
-		Categoria: {{ produto.categoria.nome if produto.categoria else 'Sem categoria' }}
-		<a href="{{ url_for('editar', id=produto.id) }}">
-			<i style="color: rgb(2, 77, 2);" class="fa-regular fa-pen-to-square"></i>
-		</a>
-		<a href="{{ url_for('apagar', id=produto.id) }}" onclick="return confirm('Apagar este produto?')">
-			<i style="color: darkred;" class="fa-solid fa-trash"></i>
-		</a>
-	</li>
-	{% endfor %}
-
-	<li>
-		<a href="{{ url_for('adicionar') }}" class="botao-add" title="Adicionar Produto">+</a>
-	</li>
-</ul>
+<h3 class="mb-3">Lista de Produtos</h3>
+<table class="table table-striped table-hover">
+	<thead class="table-dark">
+		<tr>
+			<th>Nome</th>
+			<th>Descrição</th>
+			<th>Preço (€)</th>
+			<th>Categoria</th>
+			<th>Quantidade</th>
+			<th style="width: 120px;"></th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for produto in produtos %}
+		<tr>
+			<td>{{ produto.nome | highlight(pesquisa) | safe }}</td>
+			<td>{{ produto.descricao | highlight(pesquisa) | safe }}</td>
+			<td>{{ '%.2f'|format(produto.preco) }}</td>
+			<td>{{ produto.categoria.nome if produto.categoria else 'Sem categoria' }}</td>
+			<td>{{ produto.quantidade }}</td>
+			<td class="text-end">
+				<a href="{{ url_for('editar', id=produto.id) }}" class="btn btn-sm btn-outline-success" title="Editar">
+					<i class="fa-regular fa-pen-to-square"></i>
+				</a>
+				<a href="{{ url_for('apagar', id=produto.id) }}" class="btn btn-sm btn-outline-danger" title="Apagar" onclick="return confirm('Apagar este produto?')">
+					<i class="fa-solid fa-trash"></i>
+				</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<a href="{{ url_for('adicionar') }}" class="btn btn-primary" title="Adicionar Produto">+ Adicionar Produto</a>
 
 {% elif opt == 'categorias' %}
-<h3>Lista de Categorias</h3>
-<ul>
-	{% for categoria in categorias %}
-	<li>
-		{{ categoria.nome | highlight(pesquisa) | safe }}
-		<a href="{{ url_for('editar_categoria', id=categoria.id) }}">
-			<i style="color: rgb(2, 77, 2);" class="fa-regular fa-pen-to-square"></i>
-		</a>
-		<a href="{{ url_for('apagar_categoria', id=categoria.id) }}" onclick="return confirm('Apagar esta categoria?')">
-			<i style="color: darkred;" class="fa-solid fa-trash"></i>
-		</a>
-	</li>
-	{% endfor %}
-
-	<li>
-		<a href="{{ url_for('adicionar_categoria') }}" class="botao-add" title="Adicionar Categoria">+</a>
-	</li>
-</ul>
+<h3 class="mb-3">Lista de Categorias</h3>
+<table class="table table-striped table-hover">
+	<thead class="table-dark">
+		<tr>
+			<th>Nome</th>
+			<th style="width: 120px;"></th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for categoria in categorias %}
+		<tr>
+			<td>{{ categoria.nome | highlight(pesquisa) | safe }}</td>
+			<td class="text-end">
+				<a href="{{ url_for('editar_categoria', id=categoria.id) }}" class="btn btn-sm btn-outline-success" title="Editar">
+					<i class="fa-regular fa-pen-to-square"></i>
+				</a>
+				<a href="{{ url_for('apagar_categoria', id=categoria.id) }}" class="btn btn-sm btn-outline-danger" title="Apagar" onclick="return confirm('Apagar esta categoria?')">
+					<i class="fa-solid fa-trash"></i>
+				</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<a href="{{ url_for('adicionar_categoria') }}" class="btn btn-primary" title="Adicionar Categoria">+ Adicionar Categoria</a>
 {% endif %}
 {% endblock %}

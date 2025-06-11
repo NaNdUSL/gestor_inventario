@@ -1,39 +1,75 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-<h2>Lista de Funcionários</h2>
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Lista de Funcionários</h5>
+    </div>
 
-<table class="table-estruturada">
-	<thead>
-		<tr>
-			<th>ID</th>
-			<th>Nome</th>
-			<th>Email</th>
-			<th>NIF</th>
-			<th>Telemóvel</th>
-			<th>Cargo</th>
-			<th>Ações</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for f in funcionarios %}
-		<tr>
-			<td>{{ f.id }}</td>
-			<td>{{ f.nome }}</td>
-			<td>{{ f.email }}</td>
-			<td>{{ f.nif }}</td>
-			<td>{{ f.telemovel }}</td>
-			<td>{{ f.cargo }}</td>
-			<td>
-				<a href="{{ url_for('editar_funcionario', id=f.id) }}">
-					<i class="fa-solid fa-pen-to-square" style="color: green;"></i>
-				</a>
-				<a href="{{ url_for('apagar_funcionario', id=f.id) }}" onclick="return confirm('Eliminar este funcionário?')">
-					<i class="fa-solid fa-trash" style="color: darkred;"></i>
-				</a>
-			</td>
-		</tr>
-		{% endfor %}
-	</tbody>
-</table>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('lista_funcionarios') }}" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <input type="text" name="nome" placeholder="Filtrar por nome/email" class="form-control" value="{{ request.args.get('nome', '') }}">
+            </div>
+            <div class="col-md-4">
+                <select name="cargo" class="form-select">
+                    <option value="">Todos os cargos</option>
+                    <option value="admin" {% if request.args.get('cargo') == 'admin' %}selected{% endif %}>Administrador</option>
+                    <option value="funcionario" {% if request.args.get('cargo') == 'funcionario' %}selected{% endif %}>Funcionário</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-grid">
+                <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">NIF</th>
+                        <th scope="col">Telemóvel</th>
+                        <th scope="col">Cargo</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in funcionarios %}
+                    <tr>
+                        <td>{{ f.id }}</td>
+                        <td>{{ f.nome }}</td>
+                        <td>{{ f.email }}</td>
+                        <td>{{ f.nif }}</td>
+                        <td>{{ f.telemovel }}</td>
+                        <td>
+                            {% if f.cargo == 'admin' %}
+                                <span class="badge bg-danger">Administrador</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Funcionário</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('editar_funcionario', id=f.id) }}" class="btn btn-sm btn-outline-success me-1" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a href="{{ url_for('apagar_funcionario', id=f.id) }}" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('Eliminar este funcionário?')">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-info-circle me-2"></i>Nenhum funcionário encontrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}

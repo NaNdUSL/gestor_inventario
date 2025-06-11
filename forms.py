@@ -25,7 +25,8 @@ class ProdutoForm(FlaskForm):
 	nome = StringField('Nome', validators=[DataRequired()])
 	preco = FloatField('Preço', validators=[DataRequired()])
 	descricao = StringField('Descrição')
-	categoria = SelectField('ID da Categoria', coerce=int, validators=[DataRequired()])
+	categoria = SelectField('ID da Categoria', coerce=int)
+	quantidade = IntegerField('Qunatidade', validators=[DataRequired()])
 	submeter = SubmitField('Gravar')
 
 

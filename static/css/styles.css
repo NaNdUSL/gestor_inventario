@@ -1,134 +1,113 @@
-.container {
-    width: 70%;
-    margin: 50px auto;
-    font-family: Arial, Helvetica, sans-serif;
+.painel-container {
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.header {
+.painel-form {
     display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
     align-items: center;
-    justify-content: space-between;
+    margin-bottom: 1.5rem;
 }
 
-.nav {
-    display: flex;
-    gap: 20px;
+.painel-pesquisa {
+    max-width: 300px;
+    flex-grow: 1;
 }
 
-.nav a {
-    text-decoration: none;
-    background-color: cornflowerblue;
-    padding: 4px 15px;
-    color: white;
-    border-radius: 2px;
+.btn-adicionar {
+    margin-top: 1rem;
 }
 
-mark {
-    padding: 0;
-    margin: 0;
-    background-color: rgb(129, 186, 212);
-    display: inline;
+.conteudo-principal {
+  padding-top: 100px;
 }
 
-.td-lista {
-    background-color: rgb(246, 246, 246);
-    border-left: 5px solid cornflowerblue;
-    padding: 10px;
-    text-align: left;
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    margin-bottom: 15px;
+@media (max-width: 768px) {
+  .conteudo-principal {
+    padding-top: 120px;
+  }
 }
 
-.td-lista a {
-    text-decoration: none;
+.mt-navbar {
+  padding-top: 100px;
 }
 
-.editar-apagar {
-    display: inline-block;
-    margin-right: 10px;
+@media (max-width: 768px) {
+  .mt-navbar {
+    padding-top: 120px;
+  }
 }
 
-i {
-    margin-left: 10px;
+.alert {
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  transition: box-shadow 0.3s ease;
 }
 
-.jogo-info {
-    white-space: normal;
+.alert:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-input[type="text"],
-input[type="number"] {
-    width: 300px;
+.confirm-box {
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 1.5rem 2rem;
+    border: 2px solid #d9534f;
+    border-radius: 8px;
+    background-color: #fff6f6;
+    font-family: Arial, sans-serif;
+    color: #333;
 }
 
-.form-adicionar,
-.form-editar {
-    width: 60%;
-}
-
-.form-adicionar label,
-.form-editar label {
-    display: block;
-    text-align: left;
-}
-
-.form-adicionar input,
-.form-editar input {
-    width: 100%;
-    border: none;
-    border-bottom: 1px solid black;
-    outline: none;
-}
-
-.form-adicionar input[type="submit"],
-.form-editar input[type="submit"] {
-    width: 100px;
-    margin-top: 25px;
-    background-color: orange;
-    color: white;
-    padding: 6px 15px;
-    border: none;
-    font-weight: bold;
-    border-radius: 2px;
-    font-size: 16px;
-}
-
-.table-estruturada {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.table-estruturada th,
-.table-estruturada td {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-.table-estruturada th {
-    background-color: cornflowerblue;
-    color: white;
-}
-
-.botao-add {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
+.confirm-box h2 {
+    color: #d9534f;
+    margin-bottom: 1rem;
     text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    background-color: cornflowerblue;
-    color: white;
-    border-radius: 5px;
-    text-decoration: none;
-    transition: background-color 0.2s;
 }
 
-.botao-add:hover {
-    background-color: royalblue;
+.confirm-box p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.confirm-box strong {
+    color: #b52b27;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.buttons button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 130px;
+}
+
+.buttons button[name="confirmar"][value="sim"] {
+    background-color: #d9534f;
+    color: white;
+}
+.buttons button[name="confirmar"][value="sim"]:hover {
+    background-color: #c9302c;
+}
+
+.buttons button[name="confirmar"][value="nao"] {
+    background-color: #6c757d;
+    color: white;
+}
+.buttons button[name="confirmar"][value="nao"]:hover {
+    background-color: #5a6268;
 }

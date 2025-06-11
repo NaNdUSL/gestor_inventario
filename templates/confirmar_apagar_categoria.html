@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<div class="confirm-box">
+    <h2>Confirmar Remoção de Categoria</h2>
+    <p>A categoria <strong>{{ categoria.nome }}</strong> está associada a <strong>{{ produtos|length }}</strong> produto(s).</p>
+    <p>Se continuares, a categoria será removida e os produtos ficarão <strong>sem categoria</strong>.</p>
+
+    <form method="POST" style="text-align:center;">
+        <div class="buttons">
+            <button type="submit" name="confirmar" value="sim">Sim, remover</button>
+            <button type="submit" name="confirmar" value="nao">Cancelar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

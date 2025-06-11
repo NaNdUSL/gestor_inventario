@@ -1,19 +1,30 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-	<h2>Editar categoria</h2>
-
-	<form class="form-editar" action="" method="POST">
-		{{ form.hidden_tag() }}
-
-		<p>
-			{{ form.nome.label }} <br>
-			{{ form.nome(size=40) }} <br>
-			{% for error in form.nome.errors %}
-				<span style="color:red;">{{ error }}</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.submeter() }}</p>
-
-	</form>
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0 text-center">
+                    <i class="fas fa-edit me-2"></i>Editar Categoria
+                </h4>
+            </div>
+            <div class="card-body">
+                <form action="" method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.nome.label(class="form-label") }}
+                        {{ form.nome(class="form-control", placeholder="Nome da categoria") }}
+                        {% for error in form.nome.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-end">
+                        {{ form.submeter(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

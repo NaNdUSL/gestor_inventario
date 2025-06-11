@@ -1,46 +1,66 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-	<form action="" method="POST">
-		{{ form.hidden_tag() }} <!-- o token CSRF é enviado -->
-		<h2>Registo</h2>
-	 
-		<p>{{ form.nome.label }} <br>
-			{{ form.nome(size=40) }} <br>
-			{% for error in form.nome.errors %}
-				<span style="color:red;">{{ error }}</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.email.label }} <br>
-			{{ form.email(size=40) }} <br>
-			{% for error in form.email.errors %}
-			<span style="color:red;">{{ error }}</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.nif.label }} <br>
-			{{ form.nif(size=40) }} <br>
-			{% for error in form.nif.errors %}
-			<span style="color:red;">{{ error }}</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.telemovel.label }} <br>
-			{{ form.telemovel(size=40) }} <br>
-			{% for error in form.telemovel.errors %}
-			<span style="color:red;">{{ error }}</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.password.label }} <br>
-			{{ form.password(size=40) }} <br>
-			{% for error in form.password.errors %}
-			<span style="color:red;">{{ error }}</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.confirmar.label }} <br>
-			{{ form.confirmar(size=40) }} <br>
-			{% for error in form.confirmar.errors %}
-				<span style="color:red;">{{ error }}</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.submeter() }}</p>
-	</form>
+<div class="card shadow-sm mx-auto mt-4" style="max-width: 600px;">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Registo de Funcionário</h4>
+    </div>
+    <div class="card-body">
+        <form action="" method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.nome.label(class="form-label") }}
+                {{ form.nome(class="form-control", placeholder="Nome completo") }}
+                {% for error in form.nome.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", placeholder="exemplo@email.com") }}
+                {% for error in form.email.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.nif.label(class="form-label") }}
+                {{ form.nif(class="form-control", placeholder="123456789") }}
+                {% for error in form.nif.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.telemovel.label(class="form-label") }}
+                {{ form.telemovel(class="form-control", placeholder="912345678") }}
+                {% for error in form.telemovel.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="Palavra-passe") }}
+                {% for error in form.password.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.confirmar.label(class="form-label") }}
+                {{ form.confirmar(class="form-control", placeholder="Confirmar palavra-passe") }}
+                {% for error in form.confirmar.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="text-end">
+                {{ form.submeter(class="btn btn-success") }}
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

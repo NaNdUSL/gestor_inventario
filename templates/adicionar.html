@@ -1,13 +1,64 @@
 {% extends 'base.html' %}
 
 {% block conteudo %}
-    <h2>{% if request.endpoint == 'adicionar' %} Adicionar {% else %} Editar {% endif %} Produto</h2>
-    <form class="form-adicionar" action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>{{ form.nome.label }} {{ form.nome() }}</p>
-        <p>{{ form.descricao.label }} {{ form.descricao() }}</p>
-        <p>{{ form.preco.label }} {{ form.preco() }}</p>
-        <p>{{ form.categoria.label }} {{ form.categoria() }}</p>
-        <p>{{ form.submeter() }}</p>
-    </form>
+<div class="card shadow-sm mx-auto mt-4" style="max-width: 700px;">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0 text-center">
+            {% if request.endpoint == 'adicionar' %}
+                <i class="fas fa-box-open me-2"></i>Adicionar Produto
+            {% else %}
+                <i class="fas fa-edit me-2"></i>Editar Produto
+            {% endif %}
+        </h4>
+    </div>
+    <div class="card-body">
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.nome.label(class="form-label") }}
+                {{ form.nome(class="form-control", placeholder="Nome do produto") }}
+                {% for error in form.nome.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.descricao.label(class="form-label") }}
+                {{ form.descricao(class="form-control", placeholder="Descrição detalhada") }}
+                {% for error in form.descricao.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.preco.label(class="form-label") }}
+                {{ form.preco(class="form-control", placeholder="Preço em €") }}
+                {% for error in form.preco.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.categoria.label(class="form-label") }}
+                {{ form.categoria(class="form-select") }}
+                {% for error in form.categoria.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.quantidade.label(class="form-label") }}
+                {{ form.quantidade(class="form-control", placeholder="Quantidade disponível") }}
+                {% for error in form.quantidade.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="text-end">
+                {{ form.submeter(class="btn btn-success") }}
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

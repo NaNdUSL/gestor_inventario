@@ -32,18 +32,6 @@ def index():
 	return redirect(url_for('painel'))
 
 
-# @app.route('/produtos')
-# @login_required
-# def listar():
-# 	pesquisa = request.args.get('pesquisa', '', type=str)
-# 	if pesquisa:
-# 		produtos = Produto.query.filter(or_(Produto.nome.contains(pesquisa), Produto.descricao.contains(pesquisa))).all()
-# 	else:
-# 		produtos = Produto.query.all()
-# 	return render_template('lista.html', produtos=produtos, pesquisa=pesquisa)
-
-
-
 @app.route('/painel', methods=['GET', 'POST'])
 @login_required
 def painel():
@@ -80,7 +68,7 @@ def adicionar():
 	form.categoria.choices = [(c.id, c.nome) for c in Categoria.query.order_by(Categoria.nome).all()]
 
 	if form.validate_on_submit():
-		produto = Produto(nome=form.nome.data, preco=form.preco.data, descricao=form.descricao.data, categoria_id=form.categoria.data)
+		produto = Produto(nome=form.nome.data, preco=form.preco.data, descricao=form.descricao.data, categoria_id=form.categoria.data, quantidade=form.quantidade.data)
 		db.session.add(produto)
 		db.session.commit()
 
@@ -160,19 +148,30 @@ def editar(id):
 	return render_template('editar.html', form=form)
 
 
-@app.route('/categorias/apagar/<int:id>')
+@app.route('/apagar_categoria/<int:id>', methods=['GET', 'POST'])
 @login_required
 def apagar_categoria(id):
-
 	categoria = Categoria.query.get_or_404(id)
-	db.session.delete(categoria)
-	db.session.commit()
+	produtos_com_categoria = Produto.query.filter_by(categoria_id=id).all()
+	
+	if request.method == 'POST':
+		if request.form.get('confirmar') == 'sim':
+			for p in produtos_com_categoria:
+				p.categoria_id = None
+			db.session.delete(categoria)
+			db.session.commit()
+			flash(f"Categoria '{categoria.nome}' apagada com sucesso e produtos desvinculados.", 'success')
+			return redirect(url_for('painel', opt='categorias'))
+		else:
+			return redirect(url_for('painel', opt='categorias'))
 
-	log = Log(utilizador_id=current_user.id, descricao=f"Apagada a categoria '{categoria.nome}'")
-	db.session.add(log)
-	db.session.commit()
-
-	return redirect(url_for('painel') + '?opt=categorias')
+	if produtos_com_categoria:
+		return render_template('confirmar_apagar_categoria.html', categoria=categoria, produtos=produtos_com_categoria)
+	else:
+		db.session.delete(categoria)
+		db.session.commit()
+		flash(f"Categoria '{categoria.nome}' apagada com sucesso.", 'success')
+		return redirect(url_for('painel', opt='categorias'))
 
 
 @app.route('/produtos/apagar/<int:id>')
@@ -248,14 +247,36 @@ def registo():
 	return render_template('registo.html', form=form)
 
 
+from sqlalchemy import or_
+
 @app.route('/lista_funcionarios')
 @login_required
 def lista_funcionarios():
-    if current_user.cargo != 'admin':
-        return "Acesso negado", 403
+	if current_user.cargo != 'admin':
+		return "Acesso negado", 403
 
-    funcionarios = Utilizador.query.filter_by(cargo='funcionario').all()
-    return render_template('lista_funcionarios.html', funcionarios=funcionarios)
+	filtro_texto = request.args.get('nome', '').strip()
+	cargo_filtro = request.args.get('cargo', '').strip()
+
+	query = Utilizador.query
+
+	if filtro_texto:
+		like_pattern = f"%{filtro_texto}%"
+		query = query.filter(
+			or_(
+				Utilizador.nome.ilike(like_pattern),
+				Utilizador.email.ilike(like_pattern)
+			)
+		)
+
+	if cargo_filtro:
+		query = query.filter_by(cargo=cargo_filtro)
+	else:
+		query = query.filter(Utilizador.cargo.in_(['funcionario', 'admin']))
+
+	funcionarios = query.order_by(Utilizador.nome).all()
+
+	return render_template('lista_funcionarios.html', funcionarios=funcionarios)
 
 
 @app.route('/funcionarios/editar/<int:id>', methods=['GET', 'POST'])
@@ -282,7 +303,6 @@ def editar_funcionario(id):
 		return redirect(url_for('lista_funcionarios'))
 
 	return render_template('editar_funcionario.html', form=form)
-
 
 
 @app.route('/funcionarios/apagar/<int:id>')
