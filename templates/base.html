@@ -34,9 +34,6 @@
 					</li>
 					{% elif current_user.cargo == 'admin' %}
 					<li class="nav-item">
-						<a href="{{ url_for('registo') }}" class="nav-link">Registar Funcionário</a>
-					</li>
-					<li class="nav-item">
 						<a href="{{ url_for('lista_funcionarios') }}" class="nav-link">Painel</a>
 					</li>
 					{% endif %}

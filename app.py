@@ -3,6 +3,7 @@ from models import db, Produto, Utilizador, Categoria, Log
 from forms import ProdutoForm, LoginForm, RegistoForm, CategoriaForm, FuncionarioEditarForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
+from datetime import datetime
 import pytz
 
 app = Flask(__name__)
@@ -160,7 +161,12 @@ def apagar_categoria(id):
 				p.categoria_id = None
 			db.session.delete(categoria)
 			db.session.commit()
-			flash(f"Categoria '{categoria.nome}' apagada com sucesso e produtos desvinculados.", 'success')
+
+			log = Log(utilizador_id=current_user.id, descricao=f"Apagada a categoria '{categoria.nome}'")
+			db.session.add(log)
+			db.session.commit()
+
+			flash(f"Categoria '{categoria.nome}' apagada com sucesso.", 'success')
 			return redirect(url_for('painel', opt='categorias'))
 		else:
 			return redirect(url_for('painel', opt='categorias'))
@@ -188,6 +194,7 @@ def apagar(id):
 
 	return redirect(url_for('painel'))
 
+
 @app.route('/ajustar_quantidade/<int:id>', methods=['POST'])
 def ajustar_quantidade(id):
 	produto = Produto.query.get_or_404(id)
@@ -205,6 +212,11 @@ def ajustar_quantidade(id):
 	produto.quantidade = nova_quantidade
 	db.session.commit()
 	flash('Quantidade ajustada com sucesso.', 'success')
+
+	log = Log(utilizador_id=current_user.id, descricao=f"Ajustada a quantidade de '{produto.nome}' para {nova_quantidade}")
+	db.session.add(log)
+	db.session.commit()
+
 	return redirect(url_for('painel', opt='produtos'))
 
 
@@ -214,8 +226,6 @@ def listar_logs():
 	cargo_filter = request.args.get('cargo', '').strip()
 	nome_filter = request.args.get('nome', '').strip()
 	descricao_filter = request.args.get('descricao', '').strip()
-
-	# Espera strings tipo "YYYY-MM-DD HH:MM" ou só "YYYY-MM-DD"
 	data_inicio_str = request.args.get('data_inicio', '').strip()
 	data_fim_str = request.args.get('data_fim', '').strip()
 
@@ -226,7 +236,6 @@ def listar_logs():
 
 	try:
 		if data_inicio_str:
-			# Tenta com datetime completo, se falhar tenta só data
 			try:
 				data_inicio = datetime.strptime(data_inicio_str, fmt)
 			except ValueError:
@@ -236,10 +245,8 @@ def listar_logs():
 				data_fim = datetime.strptime(data_fim_str, fmt)
 			except ValueError:
 				data_fim = datetime.strptime(data_fim_str, fmt_date_only)
-				# Ajustar fim do dia para 23:59:59
 				data_fim = data_fim.replace(hour=23, minute=59, second=59)
 	except Exception:
-		# Ignorar parse error (ou podes fazer flash erro)
 		pass
 
 	if current_user.cargo == 'admin':
@@ -259,7 +266,6 @@ def listar_logs():
 		logs = query.order_by(Log.data.desc()).all()
 
 	else:
-		# Funcionário vê só os seus logs e pode filtrar por descrição + datas
 		query = Log.query.filter_by(utilizador_id=current_user.id)
 
 		if descricao_filter:
@@ -272,12 +278,7 @@ def listar_logs():
 
 		logs = query.order_by(Log.data.desc()).all()
 
-	return render_template('logs.html', logs=logs,
-						cargo_filter=cargo_filter,
-						nome_filter=nome_filter,
-						descricao_filter=descricao_filter,
-						data_inicio=data_inicio_str,
-						data_fim=data_fim_str)
+	return render_template('logs.html', logs=logs, cargo_filter=cargo_filter, nome_filter=nome_filter, descricao_filter=descricao_filter, data_inicio=data_inicio_str, data_fim=data_fim_str)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -326,12 +327,14 @@ def registo():
 		db.session.commit()
 		flash("Registo efetuado com sucesso!", "sucesso")
 
+		log = Log(utilizador_id=current_user.id, descricao=f"Registado o novo funcionário '{novo_utilizador.nome}'")
+		db.session.add(log)
+		db.session.commit()
+
 		return redirect(url_for('lista_funcionarios'))
 
 	return render_template('registo.html', form=form)
 
-
-from sqlalchemy import or_
 
 @app.route('/lista_funcionarios')
 @login_required
@@ -346,12 +349,7 @@ def lista_funcionarios():
 
 	if filtro_texto:
 		like_pattern = f"%{filtro_texto}%"
-		query = query.filter(
-			or_(
-				Utilizador.nome.ilike(like_pattern),
-				Utilizador.email.ilike(like_pattern)
-			)
-		)
+		query = query.filter(or_(Utilizador.nome.ilike(like_pattern), Utilizador.email.ilike(like_pattern)))
 
 	if cargo_filtro:
 		query = query.filter_by(cargo=cargo_filtro)
@@ -385,13 +383,16 @@ def editar_funcionario(id):
 		db.session.commit()
 		flash("Funcionário atualizado com sucesso!", "sucesso")
 
+		log = Log(utilizador_id=current_user.id, descricao=f"Editado o funcionário '{funcionario.nome}'")
+		db.session.add(log)
+		db.session.commit()
+
 		if current_user.cargo == 'admin':
 			return redirect(url_for('lista_funcionarios'))
 		else:
 			return redirect(url_for('painel'))
 
 	return render_template('editar_funcionario.html', form=form)
-
 
 
 @app.route('/funcionarios/apagar/<int:id>')
@@ -407,9 +408,14 @@ def apagar_funcionario(id):
 		flash("Não podes apagar a tua própria conta.", "erro")
 		return redirect(url_for('lista_funcionarios'))
 
+	log = Log(utilizador_id=current_user.id, descricao=f"Apagado o funcionário '{funcionario.nome}'")
+	db.session.add(log)
+	db.session.commit()
+
 	db.session.delete(funcionario)
 	db.session.commit()
 	flash("Funcionário eliminado com sucesso!", "sucesso")
+
 	return redirect(url_for('lista_funcionarios'))
 
 
@@ -419,10 +425,6 @@ def logout():
 
 	logout_user()
 	return redirect(url_for('login'))
-
-
-from datetime import datetime
-import pytz
 
 @app.template_filter('to_portugal_time')
 def to_portugal_time(value):
